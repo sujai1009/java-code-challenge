@@ -1,14 +1,23 @@
 package com.sujai.test.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponseWrapper<T> {
+
+    @Schema(description = "Indicates whether the request was successful", example = "true")
     private boolean success;
+
+    @Schema(description = "Response data payload")
     private T data;
+
+    @Schema(description = "Error message if the request failed")
     private String error;
+
+    @Schema(description = "Human-readable message describing the result")
     private String message;
 
     public ApiResponseWrapper() {

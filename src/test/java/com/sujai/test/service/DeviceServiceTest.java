@@ -83,13 +83,14 @@ class DeviceServiceTest {
         Device device2 = new Device("Galaxy S24", "Samsung", DeviceState.IN_USE);
         device2.setId(2L);
 
-        when(deviceRepository.findAll()).thenReturn(List.of(device1, device2));
+        Page<Device> page = new PageImpl<>(List.of(device1, device2), PageRequest.of(0, 20), 2);
+        when(deviceRepository.findAll(PageRequest.of(0, 20))).thenReturn(page);
 
-        List<DeviceDto> devices = deviceService.getAllDevices();
+        Page<DeviceDto> result = deviceService.getAllDevices(PageRequest.of(0, 20));
 
-        assertThat(devices).hasSize(2);
-        assertThat(devices.get(0).getName()).isEqualTo("iPhone 15");
-        assertThat(devices.get(1).getName()).isEqualTo("Galaxy S24");
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent().get(0).getName()).isEqualTo("iPhone 15");
+        assertThat(result.getContent().get(1).getName()).isEqualTo("Galaxy S24");
     }
 
     @Test

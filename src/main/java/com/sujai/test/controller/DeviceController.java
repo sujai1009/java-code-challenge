@@ -18,6 +18,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -75,7 +77,8 @@ public class DeviceController {
             @ApiResponse(responseCode = "200", description = "Devices retrieved successfully",
                     content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-    public ApiResponseWrapper<PagedResponse<DeviceDto>> getAllDevices(Pageable pageable) {
+    public ApiResponseWrapper<PagedResponse<DeviceDto>> getAllDevices(
+            @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ApiResponseWrapper.success(PagedResponse.of(deviceService.getAllDevices(pageable)));
     }
 
@@ -87,7 +90,7 @@ public class DeviceController {
     })
     public ApiResponseWrapper<PagedResponse<DeviceDto>> getDevicesByBrand(
             @Parameter(description = "Brand name", example = "Apple", required = true) @PathVariable @NotBlank String brand,
-            Pageable pageable) {
+            @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ApiResponseWrapper.success(PagedResponse.of(deviceService.getDevicesByBrand(brand, pageable)));
     }
 
@@ -99,7 +102,7 @@ public class DeviceController {
     })
     public ApiResponseWrapper<PagedResponse<DeviceDto>> getDevicesByState(
             @Parameter(description = "Device state (AVAILABLE, IN_USE, INACTIVE)", example = "AVAILABLE", required = true) @PathVariable DeviceState state,
-            Pageable pageable) {
+            @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ApiResponseWrapper.success(PagedResponse.of(deviceService.getDevicesByState(state, pageable)));
     }
 
@@ -164,7 +167,7 @@ public class DeviceController {
     public record DeviceUpdateRequest(
             @Parameter(description = "Device name", example = "iPhone 15") String name,
             @Parameter(description = "Device brand", example = "Apple") String brand,
-            @Parameter(description = "Device state", example = "AVAILABLE") DeviceState state
+            @Parameter(description = "Device state (AVAILABLE, IN_USE, INACTIVE)", example = "AVAILABLE") DeviceState state
     ) {
     }
 }

@@ -15,8 +15,6 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
     Page<Device> findByState(DeviceState state, Pageable pageable);
 
-    List<Device> findByBrandAndState(String brand, DeviceState state);
-
     @Query("SELECT DISTINCT d.brand FROM Device d")
     List<String> findDistinctBrands();
 }

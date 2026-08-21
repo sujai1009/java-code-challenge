@@ -27,6 +27,7 @@ A REST API for persisting and managing device resources, built with Spring Boot 
 - `state` - Device state (AVAILABLE, IN_USE, INACTIVE)
 - `creationTime` - Timestamp of creation (cannot be updated)
 - `updatedAt` - Timestamp of last update (automatically set)
+- `version` - Optimistic locking version number
 
 ## Domain Validations
 
@@ -39,11 +40,12 @@ A REST API for persisting and managing device resources, built with Spring Boot 
 - Java 21
 - Spring Boot 3.2.0
 - Spring Data JPA
-- H2 Database (file-based, persistent)
+- MySQL (primary database for production)
+- H2 (in-memory database for unit tests)
 - Lombok
 - Maven
 - Docker (for containerization)
-- Testcontainers (for integration tests)
+- Testcontainers (for MySQL integration tests)
 
 ## API Endpoints
 
@@ -130,11 +132,11 @@ target/site/jacoco/index.html
 
 Open it in your browser to view detailed coverage metrics per class, method, and line.
 
-- Unit tests for the controller layer (9 tests)
+- Unit tests for the controller layer (12 tests)
 - Service layer tests (12 tests)
 - Concurrency tests with optimistic locking (5 tests)
-- Validation tests (13 tests)
-- Integration tests with Testcontainers (requires Docker)
+- Validator unit tests (7 tests)
+- Integration tests with Testcontainers (requires Docker) (7 tests)
 
 ## Project Structure
 
@@ -157,14 +159,24 @@ src/main/java/com/sujai/test/
 
 Completed:
 - Added concurrent update handling with Optimistic locking
-- Add OpenAPI/Swagger documentation
-- Add sorting and filtering capabilities
-- Add input validation with custom validators
-- Add integration tests for the service layer
-- Add health check endpoints
-
+- Added OpenAPI/Swagger documentation with rich schema annotations
+- Added sorting and filtering capabilities
+- Added input validation with custom validators
+- Exposed `version` field in `DeviceDto` for optimistic locking awareness
 Incomplete:
 - Brand can be moved to a separate table rather than a free flow code
+
+## Known Issues:
+- Issue with sorting the data, asc or desc.
+
+## Health Checks
+
+The application exposes health check endpoints via Spring Boot Actuator:
+
+- `GET /actuator/health` — Overall application health
+- `GET /actuator/health/db` — Database connectivity health
+
+When running with Docker Compose, the MySQL container includes a health check that ensures the database is ready before the application starts.
 
 
 

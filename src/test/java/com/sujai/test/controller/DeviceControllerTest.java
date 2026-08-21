@@ -90,7 +90,7 @@ class DeviceControllerTest {
         device2.setState(DeviceState.IN_USE);
 
         org.springframework.data.domain.Page<DeviceDto> page = new org.springframework.data.domain.PageImpl<>(List.of(device1, device2));
-        when(deviceService.getAllDevices(org.springframework.data.domain.PageRequest.of(0, 20))).thenReturn(page);
+        when(deviceService.getAllDevices(any(org.springframework.data.domain.Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/devices"))
                 .andExpect(status().isOk())
@@ -227,5 +227,63 @@ class DeviceControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error").value("Device not found with id: 999"));
+    }
+
+    @Test
+    void shouldReturnConflictWhenUpdatingNameOfInUseDevice() throws Exception {
+        DeviceDto inUseDevice = new DeviceDto();
+        inUseDevice.setId(2L);
+        inUseDevice.setName("Galaxy S24");
+        inUseDevice.setBrand("Samsung");
+        inUseDevice.setState(DeviceState.IN_USE);
+
+        when(deviceService.getDeviceById(2L)).thenReturn(inUseDevice);
+        doThrow(new DeviceService.DeviceUpdateException("Cannot update name of a device that is in use"))
+                .when(deviceService).updateDevice(eq(2L), any(com.sujai.test.model.Device.class));
+
+        mockMvc.perform(patch("/api/devices/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"New Name\",\"state\":\"IN_USE\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error").value("Cannot update name of a device that is in use"));
+    }
+
+    @Test
+    void shouldReturnConflictWhenUpdatingBrandOfInUseDevice() throws Exception {
+        DeviceDto inUseDevice = new DeviceDto();
+        inUseDevice.setId(2L);
+        inUseDevice.setName("Galaxy S24");
+        inUseDevice.setBrand("Samsung");
+        inUseDevice.setState(DeviceState.IN_USE);
+
+        when(deviceService.getDeviceById(2L)).thenReturn(inUseDevice);
+        doThrow(new DeviceService.DeviceUpdateException("Cannot update brand of a device that is in use"))
+                .when(deviceService).updateDevice(eq(2L), any(com.sujai.test.model.Device.class));
+
+        mockMvc.perform(patch("/api/devices/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"brand\":\"NewBrand\",\"state\":\"IN_USE\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error").value("Cannot update brand of a device that is in use"));
+    }
+
+    @Test
+    void shouldReturnConflictWhenDeletingInUseDevice() throws Exception {
+        DeviceDto inUseDevice = new DeviceDto();
+        inUseDevice.setId(2L);
+        inUseDevice.setName("Galaxy S24");
+        inUseDevice.setBrand("Samsung");
+        inUseDevice.setState(DeviceState.IN_USE);
+
+        when(deviceService.getDeviceById(2L)).thenReturn(inUseDevice);
+        doThrow(new DeviceService.DeviceDeleteException("Cannot delete a device that is in use"))
+                .when(deviceService).deleteDevice(2L);
+
+        mockMvc.perform(delete("/api/devices/2"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error").value("Cannot delete a device that is in use"));
     }
 }
