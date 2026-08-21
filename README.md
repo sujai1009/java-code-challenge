@@ -47,6 +47,59 @@ A REST API for persisting and managing device resources, built with Spring Boot 
 - Docker (for containerization)
 - Testcontainers (for MySQL integration tests)
 
+
+The application will start on `http://localhost:8080`.
+
+### Running with Docker
+
+## Configuration (.env)
+```bash
+All application properties are available in .evn ( Create if not available in project root used by both docker compose and application-mysql.properties)
+DB_HOST=<DB_HOST> (Docker service name if running in docker)
+DB_PORT=3306 (Database port)
+DB_NAME=devices_db (Database name)
+DB_USER=<DB_APP_USER> (DB application user, required to work with external application)
+DB_PASSWORD=<DB_APP_PASSWORD>
+DB_ROOT_PASSWORD=<DB_ROOT_PASSWORD>
+
+When running server in host machine as staanalone server, change the properties directly in application.properties ( default profile)
+```
+
+```bash
+To clean start  `docker compose up --build`
+To start        `docker compose up -d`
+To stop         `docker compose down -v``
+```
+
+## Running Tests
+
+```bash
+./mvnw test
+```
+
+### Test Coverage
+
+This project uses [JaCoCo](https://www.jacoco.org/) for code coverage reporting.
+
+```bash
+# Run tests and generate coverage report
+./mvnw clean test jacoco:report
+```
+
+The HTML coverage report will be generated at:
+
+```
+target/site/jacoco/index.html
+```
+
+Open it in your browser to view detailed coverage metrics per class, method, and line.
+
+- Unit tests for the controller layer
+- Service layer tests
+- Concurrency tests with optimistic locking
+- Validator unit tests
+- Integration tests with Testcontainers (requires Docker)
+- 
 ## API Endpoints
 
 | Method | Endpoint | Description |
@@ -98,45 +151,6 @@ The response includes pagination metadata:
 ```bash
 ./mvnw spring-boot:run
 ```
-
-The application will start on `http://localhost:8080`.
-
-### Running with Docker
-
-```bash
-To clean start  `docker compose up --build`
-To start        `docker compose up -d`
-To stop         `docker compose down -v``
-```
-
-## Running Tests
-
-```bash
-./mvnw test
-```
-
-### Test Coverage
-
-This project uses [JaCoCo](https://www.jacoco.org/) for code coverage reporting.
-
-```bash
-# Run tests and generate coverage report
-./mvnw clean test jacoco:report
-```
-
-The HTML coverage report will be generated at:
-
-```
-target/site/jacoco/index.html
-```
-
-Open it in your browser to view detailed coverage metrics per class, method, and line.
-
-- Unit tests for the controller layer (12 tests)
-- Service layer tests (12 tests)
-- Concurrency tests with optimistic locking (5 tests)
-- Validator unit tests (7 tests)
-- Integration tests with Testcontainers (requires Docker) (7 tests)
 
 ## Project Structure
 
